@@ -8,7 +8,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     
     # MongoDB 配置
-    MONGODB_URI = os.environ.get('MONGODB_URI')
+    MONGO_URI = os.environ.get('MONGODB_URI')
     
     # OpenAI 配置
     OPENAI_TOKEN = os.environ.get('OPENAI_TOKEN')
