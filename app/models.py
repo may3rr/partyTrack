@@ -1,25 +1,24 @@
-from app import db, login_manager
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
-from datetime import datetime
+from app import login, mongo
+from bson.objectid import ObjectId
 
-@login_manager.user_loader
+class User(UserMixin):
+    def __init__(self, user_data):
+        self.user_data = user_data
+        self.id = str(user_data.get('_id'))
+        self.username = user_data.get('username')
+
+    @staticmethod
+    def get_by_id(user_id):
+        try:
+            user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
+            return User(user_data) if user_data else None
+        except:
+            return None
+
+@login.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
-
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256), nullable=False)
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-    def __repr__(self):
-        return f'<User {self.username}>'
+    return User.get_by_id(user_id)
 
 class Member(db.Model):
     id = db.Column(db.Integer, primary_key=True)

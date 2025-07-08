@@ -11,5 +11,10 @@
       "src": "/(.*)",
       "dest": "wsgi.py"
     }
-  ]
-} 
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  }
+}
