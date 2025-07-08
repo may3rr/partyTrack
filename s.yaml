@@ -17,8 +17,16 @@ services:
         runtime: python3
         codeUri: .
         handler: wsgi.app
-        memorySize: 128
+        memorySize: 256
         timeout: 60
+        environmentVariables:
+          PYTHONPATH: /code
+        layers:
+          - acs:fc:${vars.region}:official:layers/Python39/versions/2
+        customRuntimeConfig:
+          command:
+            - pip install -r requirements-fc.txt -t /code
+            - python
       triggers:
         - name: httpTrigger
           type: http
