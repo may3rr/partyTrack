@@ -19,11 +19,12 @@ services:
         handler: index.handler
         memorySize: 512
         timeout: 120
-        caPort: 9000
+        environmentVariables:
+          PYTHONPATH: /code/site-packages:/code
         customRuntimeConfig:
           command:
             - python
-            - wsgi.py
+            - bootstrap.py
       triggers:
         - name: httpTrigger
           type: http
