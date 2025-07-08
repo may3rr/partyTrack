@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}{{ member.name }} - 党员档案{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 页面标题 -->
+    <div class="pb-5 border-b border-gray-200 sm:flex sm:items-center sm:justify-between">
+        <h3 class="text-2xl leading-6 font-medium text-gray-900">
+            党员档案：{{ member.name }}
+        </h3>
+        {% if not current_user.is_authenticated %}
+        <p class="mt-2 text-sm text-gray-500">您当前为游客，无法修改档案，如需操作请联系团支书。</p>
+        {% endif %}
+        <div class="mt-3 sm:mt-0 sm:ml-4">
+            <a href="{{ url_for('main.tracking') }}"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cpc-red-500">
+                返回列表
+            </a>
+        </div>
+    </div>
+
+    <form action="{{ url_for('main.profile', member_id=member.id) }}" method="POST">
+        <!-- 基本信息卡片 -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">基本信息</h3>
+            </div>
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">姓名</label>
+                        <input type="text" name="name" id="name" value="{{ member.name }}" required
+                            class="mt-1 focus:ring-cpc-red-500 focus:border-cpc-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    </div>
+
+                    <div>
+                        <label for="gender" class="block text-sm font-medium text-gray-700">性别</label>
+                        <select id="gender" name="gender"
+                            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-cpc-red-500 focus:border-cpc-red-500 sm:text-sm">
+                            <option value="男" {% if member.gender == '男' %}selected{% endif %}>男</option>
+                            <option value="女" {% if member.gender == '女' %}selected{% endif %}>女</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="id_card_number" class="block text-sm font-medium text-gray-700">身份证号</label>
+                        <input type="text" name="id_card_number" id="id_card_number" value="{{ member.id_card_number }}"
+                            class="mt-1 focus:ring-cpc-red-500 focus:border-cpc-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    </div>
+
+                    <div>
+                        <label for="member_type" class="block text-sm font-medium text-gray-700">党员类型</label>
+                        <select id="member_type" name="member_type"
+                            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-cpc-red-500 focus:border-cpc-red-500 sm:text-sm">
+                            <option value="学生党员" {% if member.member_type == '学生党员' %}selected{% endif %}>学生党员</option>
+                            <option value="教师党员" {% if member.member_type == '教师党员' %}selected{% endif %}>教师党员</option>
+                        </select>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="mentors" class="block text-sm font-medium text-gray-700">培养联系人</label>
+                        <input type="text" name="mentors" id="mentors" value="{{ member.mentors }}"
+                            class="mt-1 focus:ring-cpc-red-500 focus:border-cpc-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            placeholder="请输入培养联系人姓名，多个联系人用逗号分隔">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 发展时间轴卡片 -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">发展时间轴</h3>
+                <p class="mt-1 text-sm text-gray-500">记录党员发展的关键时间节点</p>
+            </div>
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label for="application_date" class="block text-sm font-medium text-gray-700">递交入党申请书日期</label>
+                        <input type="date" name="application_date" id="application_date"
+                            value="{{ member.application_date.strftime('%Y-%m-%d') if member.application_date }}"
+                            class="mt-1 focus:ring-cpc-red-500 focus:border-cpc-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    </div>
+
+                    <div>
+                        <label for="activist_date" class="block text-sm font-medium text-gray-700">确定为积极分子日期</label>
+                        <input type="date" name="activist_date" id="activist_date"
+                            value="{{ member.activist_date.strftime('%Y-%m-%d') if member.activist_date }}"
+                            class="mt-1 focus:ring-cpc-red-500 focus:border-cpc-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    </div>
+
+                    <div>
+                        <label for="development_object_date" class="block text-sm font-medium text-gray-700">确定为发展对象日期</label>
+                        <input type="date" name="development_object_date" id="development_object_date"
+                            value="{{ member.development_object_date.strftime('%Y-%m-%d') if member.development_object_date }}"
+                            class="mt-1 focus:ring-cpc-red-500 focus:border-cpc-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    </div>
+
+                    <div>
+                        <label for="pre_member_date" class="block text-sm font-medium text-gray-700">接收为预备党员日期</label>
+                        <input type="date" name="pre_member_date" id="pre_member_date"
+                            value="{{ member.pre_member_date.strftime('%Y-%m-%d') if member.pre_member_date }}"
+                            class="mt-1 focus:ring-cpc-red-500 focus:border-cpc-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    </div>
+
+                    <div>
+                        <label for="full_member_date" class="block text-sm font-medium text-gray-700">转为正式党员日期</label>
+                        <input type="date" name="full_member_date" id="full_member_date"
+                            value="{{ member.full_member_date.strftime('%Y-%m-%d') if member.full_member_date }}"
+                            class="mt-1 focus:ring-cpc-red-500 focus:border-cpc-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 思想汇报记录卡片 -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">思想汇报记录</h3>
+                <p class="mt-1 text-sm text-gray-500">记录提交思想汇报的历史</p>
+            </div>
+            <div class="border-t border-gray-200">
+                <ul class="divide-y divide-gray-200">
+                    {% for submission in member.submissions %}
+                    <li class="px-4 py-4 sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ submission.submission_date.strftime('%Y-%m-%d') }}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                {{ submission.submission_type }}
+                            </p>
+                        </div>
+                    </li>
+                    {% else %}
+                    <li class="px-4 py-4 sm:px-6">
+                        <p class="text-sm text-gray-500 text-center">暂无思想汇报记录</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% if current_user.is_authenticated %}
+                <div class="px-4 py-4 sm:px-6">
+                    <form action="{{ url_for('main.log_submission', member_id=member.id) }}" method="post" style="display:inline;">
+                        <button type="submit"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cpc-red-600 hover:bg-cpc-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cpc-red-500">
+                            记录新的思想汇报
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if current_user.is_authenticated %}
+        <!-- 保存按钮 -->
+        <div class="flex justify-end">
+            <button type="submit"
+                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-cpc-red-600 hover:bg-cpc-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cpc-red-500">
+                保存更改
+            </button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %} 

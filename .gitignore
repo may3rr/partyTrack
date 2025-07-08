@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.eggs/
+instance/
+
+# Flask
+.webassets-cache
+.flask_cache/
+
+# Environment
+.env
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log
+
+# Editor
+.idea/
+.vscode/
+*.swp 
