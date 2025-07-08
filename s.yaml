@@ -1,0 +1,34 @@
+edition: 1.0.0
+name: party-track
+access: default
+
+services:
+  party-track:
+    component: fc
+    props:
+      region: cn-hangzhou
+      service:
+        name: party-track
+        description: '党建助手应用'
+        internetAccess: true
+      function:
+        name: party-track
+        description: '党建助手主函数'
+        runtime: python3
+        codeUri: .
+        handler: wsgi.app
+        memorySize: 128
+        timeout: 60
+      triggers:
+        - name: httpTrigger
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+              - POST
+      customDomains:
+        - domainName: auto
+          protocol: HTTP
+          routeConfigs:
+            - path: /* 

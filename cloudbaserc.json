@@ -1,0 +1,29 @@
+{
+  "envId": "YOUR_ENV_ID",
+  "framework": {
+    "name": "flask",
+    "plugins": {
+      "client": {
+        "use": "@cloudbase/framework-plugin-website",
+        "inputs": {
+          "buildCommand": "npm run build",
+          "outputPath": "dist"
+        }
+      },
+      "server": {
+        "use": "@cloudbase/framework-plugin-flask",
+        "inputs": {
+          "entry": "wsgi.py",
+          "path": "/api",
+          "functionName": "flask-party-track"
+        }
+      },
+      "db": {
+        "use": "@cloudbase/framework-plugin-database",
+        "inputs": {
+          "collections": ["users", "reminders"]
+        }
+      }
+    }
+  }
+} 

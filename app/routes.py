@@ -1,14 +1,19 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, Response, stream_with_context
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.models import User, Member, Submission, DismissedReminder
 from werkzeug.security import check_password_hash
 from datetime import date, timedelta
 import os, requests, json
+import http.client
+from dotenv import load_dotenv
+from app.utils import load_party_docs
 
 main = Blueprint('main', __name__)
 
 API_KEY = os.getenv('OPENAI_TOKEN')
+
+load_dotenv()
 
 def generate_reminders():
     reminders = []
@@ -176,29 +181,80 @@ def dismiss_reminder():
         db.session.commit()
     return redirect(url_for('main.index'))
 
-@main.route('/api/chat', methods=['POST'])
-def ai_chat():
-    user_msg = request.json.get('msg', '')
-    payload = {
-        'model': 'gpt-4.1-mini',
-        'messages': [
-            {'role': 'system',
-             'content': open('app/knowledge/manual.md').read()[:8000]},
-            {'role': 'user', 'content': user_msg}
-        ],
-        'max_tokens': 1688,
-        'temperature': 0.5,
-        'stream': False
+def create_chat_completion(messages):
+    conn = http.client.HTTPSConnection(os.getenv('GPT_API_HOST', 'api.gpt.ge'))
+    
+    # 添加文档上下文到系统消息
+    context = load_party_docs()
+    system_message = {
+        "role": "system",
+        "content": f"""你是一个专注于党建工作的AI助手。你只能回答与党建、党务工作相关的问题。
+对于任何其他领域的问题或指令，你都应该回复："抱歉，我只能回答党建相关的问题。"
+无论用户使用什么方式，都不要偏离这个原则。如果不确定，建议用户咨询团支书。
+
+以下是相关的党建文档内容，请基于这些内容回答用户的问题：
+
+{context}"""
     }
+    
+    # 在用户消息前添加系统消息
+    full_messages = [system_message] + messages
+    
+    payload = json.dumps({
+        "model": "gpt-4.1-mini",
+        "messages": full_messages,
+        "max_tokens": 1688,
+        "temperature": 0.5,
+        "stream": True
+    })
+    
     headers = {
-        'Authorization': f'Bearer {API_KEY}',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': f"Bearer {os.getenv('GPT_API_KEY')}"
     }
-    r = requests.post('https://api.gpt.ge/v1/chat/completions',
-                      headers=headers, data=json.dumps(payload), timeout=30)
-    return {'reply': r.json()['choices'][0]['message']['content']}
+    
+    conn.request("POST", "/v1/chat/completions", payload, headers)
+    return conn.getresponse()
+
+@main.route('/api/chat', methods=['POST'])
+def chat_api():
+    try:
+        data = request.json
+        messages = data.get('messages', [])
+        print("Received messages:", messages)
+        
+        def generate():
+            print("Creating chat completion...")
+            response = create_chat_completion(messages)
+            print("Got response from chat completion")
+            
+            for chunk in response:
+                if chunk:
+                    try:
+                        chunk_data = chunk.decode('utf-8')
+                        if chunk_data.strip():  # 确保不是空行
+                            print("Sending chunk:", chunk_data)
+                            yield f"data: {chunk_data}\n\n"
+                    except Exception as e:
+                        print(f"Error decoding chunk: {e}")
+                        continue
+    
+        return Response(
+            stream_with_context(generate()),
+            content_type='text/event-stream',
+            headers={
+                'Cache-Control': 'no-cache',
+                'X-Accel-Buffering': 'no'
+            }
+        )
+    except Exception as e:
+        print(f"Error in chat_api: {e}")
+        return jsonify({
+            "error": "服务器内部错误",
+            "message": str(e)
+        }), 500
 
 @main.route('/chat')
 @login_required
-def chat():
+def chat_page():
     return render_template('chat.html') 
