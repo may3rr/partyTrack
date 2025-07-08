@@ -5,12 +5,20 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-please-change'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     
-    # MongoDB配置
-    MONGO_URI = os.environ.get('MONGODB_URI') or \
-        'mongodb://localhost:27017/partyTrack'
+    # MongoDB 配置
+    MONGODB_URI = os.environ.get('MONGODB_URI')
     
-    # Vercel 环境配置
-    VERCEL_ENV = os.environ.get('VERCEL_ENV')
-    IS_VERCEL = os.environ.get('VERCEL') == '1' 
+    # OpenAI 配置
+    OPENAI_TOKEN = os.environ.get('OPENAI_TOKEN')
+    GPT_API_KEY = os.environ.get('GPT_API_KEY')
+    GPT_API_HOST = os.environ.get('GPT_API_HOST')
+    
+    # 保留 SQLAlchemy 配置用于兼容性
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # 阿里云配置
+    ALIYUN_REGION = os.environ.get('ALIYUN_REGION', 'cn-hangzhou')
+    ALIYUN_ACCESS_KEY_ID = os.environ.get('ALIYUN_ACCESS_KEY_ID')
+    ALIYUN_ACCESS_KEY_SECRET = os.environ.get('ALIYUN_ACCESS_KEY_SECRET') 
