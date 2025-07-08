@@ -14,7 +14,7 @@ services:
       function:
         name: party-track
         description: '党建助手主函数'
-        runtime: python3
+        runtime: python3.9
         codeUri: .
         handler: wsgi.app
         memorySize: 256
