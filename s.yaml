@@ -17,16 +17,12 @@ services:
         runtime: python3.9
         codeUri: .
         handler: wsgi.app
-        memorySize: 256
-        timeout: 60
+        memorySize: 512
+        timeout: 120
         environmentVariables:
           PYTHONPATH: /code
-        layers:
-          - acs:fc:cn-hangzhou:official:layers/Python39/versions/2
-        customRuntimeConfig:
-          command:
-            - pip install -r requirements-fc.txt -t /code
-            - python
+          FLASK_ENV: production
+        initializer: pip install -r requirements-fc.txt
       triggers:
         - name: httpTrigger
           type: http
