@@ -5,12 +5,17 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'a-hard-to-guess-string'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     
-    # 优先使用阿里云RDS连接字符串，如果不存在则使用SQLite
-    SQLALCHEMY_DATABASE_URI = os.environ.get('ALIYUN_RDS_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'app.db')
+    # MongoDB 配置
+    MONGODB_URI = os.environ.get('MONGODB_URI')
     
+    # OpenAI 配置
+    OPENAI_TOKEN = os.environ.get('OPENAI_TOKEN')
+    GPT_API_KEY = os.environ.get('GPT_API_KEY')
+    GPT_API_HOST = os.environ.get('GPT_API_HOST')
+    
+    # 保留 SQLAlchemy 配置用于兼容性
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # 阿里云配置
