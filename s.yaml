@@ -15,13 +15,15 @@ services:
         name: party-track
         description: '党建助手主函数'
         runtime: python3.9
-        codeUri: ./code
+        codeUri: .
         handler: wsgi.app
         memorySize: 512
         timeout: 120
         environmentVariables:
           PYTHONPATH: .
           FLASK_ENV: production
+        layers:
+          - acs:fc:cn-hangzhou:official:layers/Python3/versions/2
       triggers:
         - name: httpTrigger
           type: http
