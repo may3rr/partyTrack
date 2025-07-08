@@ -22,7 +22,10 @@ services:
         environmentVariables:
           PYTHONPATH: /code
           FLASK_ENV: production
-        initializer: pip install -r requirements-fc.txt
+        initializationTimeout: 120
+        instanceLifecycleConfig:
+          initializer:
+            handler: wsgi.initialize
       triggers:
         - name: httpTrigger
           type: http
