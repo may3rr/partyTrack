@@ -22,7 +22,7 @@ services:
         environmentVariables:
           PYTHONPATH: /code
         layers:
-          - acs:fc:${vars.region}:official:layers/Python39/versions/2
+          - acs:fc:cn-hangzhou:official:layers/Python39/versions/2
         customRuntimeConfig:
           command:
             - pip install -r requirements-fc.txt -t /code
